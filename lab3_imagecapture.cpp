@@ -13,7 +13,7 @@ int main() {
 		cout << "cannot open camera";
 	}
  
-//unconditional loop
+//loop to keep capturing images
 
 	while (true) {
 			Mat cameraFrame;
