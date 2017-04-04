@@ -12,6 +12,8 @@ int main( int argc, char **argv )
         int fd;
         unsigned char command[2];
         unsigned char value[4];
+		int readTemp = 0;
+		int picTaken = 0;
 
         useconds_t delay = 2000;
 
@@ -33,8 +35,12 @@ int main( int argc, char **argv )
                 perror("Selecting i2c device\n");
         }
 
+			//reads temperature
         while(1)
         {
+					
+			while (readTemp < 25)	
+			{				
                 for(i = 0; i < 4; i++)
                 {
                        command[0] = 0x40 | ((i + 1) & 0x03); // output enable | read input i
@@ -51,7 +57,19 @@ int main( int argc, char **argv )
                 }
                 
 				printf("Temp = %d degC\n", value[3]);
+				readTemp = value[3];
+			}
 			
+			if (picTaken < 1)
+			{
+				printf("THRESHOLD REACHED: REQUESTING IMAGE\n");
+			
+				char buffer[50];
+				sprintf(buffer, "./run");
+				system(buffer);
+				picTaken++;
+				usleep(delay);
+			}
         }
 
         close(fd);
