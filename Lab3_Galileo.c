@@ -7,13 +7,11 @@
 
 int main( int argc, char **argv )
 {
-        int i;
-        int r;
-        int fd;
+        int i, r, fd;
         unsigned char command[2];
         unsigned char value[4];
-		int readTemp = 0;
-		int picTaken = 0;
+	int Temp = 0;
+	
 
         useconds_t delay = 2000;
 
@@ -28,7 +26,6 @@ int main( int argc, char **argv )
                 perror("Opening i2c device node\n");
                 return 1;
         }
-
         r = ioctl(fd, I2C_SLAVE, addr);
         if(r < 0)
         {
@@ -39,10 +36,10 @@ int main( int argc, char **argv )
         while(1)
         {
 					
-			while (readTemp < 25)	
-			{				
-                for(i = 0; i < 4; i++)
-                {
+		while (Temp < 25)	
+		{				
+                	for(i = 0; i < 4; i++)
+                	{
                        command[0] = 0x40 | ((i + 1) & 0x03); // output enable | read input i
                        command[1]++;
                        r = write(fd, &command, 2);
@@ -52,22 +49,23 @@ int main( int argc, char **argv )
                         if(r != 1)
                         {
                                 perror("reading i2c device\n");
-                        }
+                 	}
                         usleep(delay);
-                }
+                	}
                 
-				printf("Temp = %d degC\n", value[3]);
-				readTemp = value[3];
+				Temp = value[3];
+				printf("Temp = %d degC\n", Temp);
+				
 			}
 			
-			if (picTaken < 1)
+			if (Temp >= 25)
 			{
 				printf("THRESHOLD REACHED: REQUESTING IMAGE\n");
 			
 				char buffer[50];
 				sprintf(buffer, "./run");
 				system(buffer);
-				picTaken++;
+				Temp = Temp -2;
 				usleep(delay);
 			}
         }
